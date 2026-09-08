@@ -286,7 +286,7 @@ def replace_emojis_in_text(text: str) -> str:
     return text
 
 # ==================== SOZLAMALAR ====================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8746996595:AAEIbidc49taYa-CVHhWLkYWU_gv77xESpQ")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8600058131:AAGM-KhqVO0r_8npRlBxbcieuufPBaTVJVY")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://club-3d454-default-rtdb.firebaseio.com").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
