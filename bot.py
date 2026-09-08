@@ -23,15 +23,132 @@ from google.genai import types
 
 load_dotenv()
 
+# ==================== PREMIUM EMOJI ID LAR ====================
+EMOJI_IDS = {
+    "🤖": "5258093637450866522",
+    "🏘": "5257963315258204021",
+    "📂": "5258514780469075716",
+    "📅": "5258105663359294787",
+    "⚡️": "5258152182150077732",
+    "📍": "5258509201306557640",
+    "💎": "5359719332542718652",
+    "🍴": "5296727963495079440",
+    "📰": "5249231689695115145",
+    "🎮": "5258508428212445001",
+    "👤": "5258362837411045098",
+    "📞": "5258020476977946656",
+    "🚪": "5258084656674250503",
+    "⬅️": "5258236805890710909",
+    "📝": "5257965174979042426",
+    "🖼": "5257974976094412956",
+    "🗑": "5258130763148172425",
+    "✅": "5258057130228849960",
+    "📌": "5258461531464539536",
+    "🔢": "5226513232549664618",
+    "⭐️": "5258185631355378853",
+    "❌": "5258226313285607065",
+    "⚽️": "5258169263235013408",
+    "🐻": "5258145898612924124",
+    "🪙": "5258368777350816286",
+    "📖": "5258328383183396223",
+    "💼": "5258260149037965799",
+    "👨‍🎨": "5258450450448915742",
+    "🗓": "5258105663359294787",
+    "🤙": "5258337316715373336",
+    "📸": "5258205968025525531",
+    "👩‍🎨": "5258215635996908355",
+    "📣": "5260268501515377807",
+    "⛓️": "5260730055880876557",
+    "📄": "5258477770735885832",
+    "©": "5258507474729704350",
+    "👥": "5258513401784573443",
+    "✍️": "5258331647358540449",
+    "↔️": "5260233433107407649",
+    "🎭": "5258430848218176413",
+    "📁": "5257965810634202885",
+    "➡️": "5260450573768990626",
+    "🎓": "5258334872878980409",
+    "❤️": "5258179403652801593",
+    "🚪": "5258084656674250503",
+    "💡": "5258216851472654189",
+    "🔒": "5258476306152038031",
+    "💬": "5258215846450305872",
+    "🌘": "5258011861273551368",
+    "🎵": "5258289810082111221",
+    "🔕": "5260264520080695245",
+    "↗️": "5257991477358763590",
+    "✈️": "5258115571848846212",
+    "➕": "5258108352008823107",
+    "🍑": "5258330865674494479",
+    "🔫": "5260221883940347555",
+    "👏": "5258501105293205250",
+    "🔄": "5258420634785947640",
+    "🌠": "5258212268742549391",
+    "🔃": "5260687681733533075",
+    "❗️": "5258474669769497337",
+    "🤚": "5260249440450520061",
+    "🗳": "5258200019495821936",
+    "⬇️": "5258336354642697821",
+    "🕔": "5258419835922030550",
+    "⏲️": "5258258882022612173",
+    "👀": "5260341314095947411",
+    "⬆️": "5260652420052032852",
+    "🔼": "5260379144167890225",
+    "💻": "5258423306255604960",
+    "ℹ️": "5258503720928288433",
+    "🙂": "5258262708838472996",
+    "🔇": "5258267368877989660",
+    "📈": "5258391025281408576",
+    "☀️": "5258089153505009279",
+    "📚": "5260512129240276089",
+    "📦": "5258134813302332906",
+    "✋": "5258362429389152256",
+    "📹": "5258077307985207053",
+    "📼": "5258391252914676042",
+    "🙃": "5258318251355545562",
+    "🕘": "5199457120428249992",
+    "🎙": "5260652149469094137",
+    "💰": "5258204546391351475",
+    "⚙️": "5258096772776991776",
+    "♾️": "5271934788037517525",
+    "🔊": "5260325873688518261",
+    "🏷": "5296348778012361146",
+    "🔎": "5429571366384842791",
+    "👁": "5253959125838090076",
+    "⛔️": "5275969776668134187",
+    "🔞": "5325604415900504150",
+    "🔖": "5359629206948976159",
+}
+
+def wrap_emoji(emoji: str, text: str = None) -> str:
+    """Matn ichidagi emojini premium <tg-emoji> tegi bilan o‘rab beradi."""
+    if not text:
+        text = emoji
+    emoji_id = EMOJI_IDS.get(emoji)
+    if emoji_id:
+        return f'<tg-emoji emoji-id="{emoji_id}">{text}</tg-emoji>'
+    return text
+
+def replace_emojis_in_text(text: str) -> str:
+    """Matndagi barcha maʼlum emojilarni premium teglar bilan almashtiradi."""
+    for emoji, _ in EMOJI_IDS.items():
+        if emoji in text:
+            # Faqat butun emoji belgisini almashtiramiz (boshqa emojilar bilan adashmaslik uchun)
+            text = text.replace(emoji, wrap_emoji(emoji))
+    return text
+
 # ==================== SOZLAMALAR ====================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8600058131:AAGM-KhqVO0r_8npRlBxbcieuufPBaTVJVY")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8746996595:AAEIbidc49taYa-CVHhWLkYWU_gv77xESpQ")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://club-3d454-default-rtdb.firebaseio.com").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 
 AI_MODEL = "gemini-3-flash-preview"
 
-ADMIN_IDS = 5297746319
+# ⚠️ ADMIN_IDS endi to'plam (bir nechta admin ID qo'yish mumkin: {111, 222})
+ADMIN_IDS = {5297746319}
+# "Admin bilan Aloqa" bo'limidagi xabarlar shu ID'ga yuboriladi (admin shu yerdan Reply qilib javob beradi)
+ADMIN_CONTACT_ID = 6147283506
 MENU_ORDERS_CHAT_ID = -5171281890
 CABIN_BOOKING_CHAT_ID = -1004401105554
 
@@ -43,6 +160,8 @@ except FileNotFoundError:
     print("⚠️ auto_images.json fayli topilmadi! Rasmlar bo'sh boshlanadi.")
 
 FILE_ID_CACHE = {}
+# "Admin bilan Aloqa" uchun: {admin_chatga_forward_qilingan_xabar_id: foydalanuvchi_id}
+CONTACT_FORWARD_MAP = {}
 
 CATEGORY_NAMES = {
     "gazaklar": "🍿 Gazaklar",
@@ -190,6 +309,9 @@ class AdminMenuStates(StatesGroup):
 class AdminTextStates(StatesGroup):
     waiting_text = State()
 
+class ContactAdminStates(StatesGroup):
+    chatting = State()
+
 # ==================== FIREBASE (REST orqali, async) ====================
 http_client = httpx.AsyncClient(timeout=15)
 
@@ -321,30 +443,78 @@ ai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 def main_menu():
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="🤖 AI Yordamchi", callback_data="ai_start")
+        InlineKeyboardButton(
+            text=" AI Yordamchi",
+            callback_data="ai_start",
+            icon_custom_emoji_id=EMOJI_IDS.get("🤖")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="🏠 Xonalar va Narxlar", callback_data="rooms_prices"),
-        InlineKeyboardButton(text="🪑 Bo'sh Joylar", callback_data="empty_places")
+        InlineKeyboardButton(
+            text=" Xonalar va Narxlar",
+            callback_data="rooms_prices",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        ),
+        InlineKeyboardButton(
+            text=" Bo'sh Joylar",
+            callback_data="empty_places",
+            icon_custom_emoji_id=EMOJI_IDS.get("📂")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="📅 Joy Bron Qilish", callback_data="booking"),
-        InlineKeyboardButton(text="⚡ Tez-kor Bron", callback_data="quick_booking")
+        InlineKeyboardButton(
+            text=" Joy Bron Qilish",
+            callback_data="booking",
+            icon_custom_emoji_id=EMOJI_IDS.get("📅")
+        ),
+        InlineKeyboardButton(
+            text=" Tez-kor Bron",
+            callback_data="quick_booking",
+            icon_custom_emoji_id=EMOJI_IDS.get("⚡️")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="📍 Manzil va Aloqa", callback_data="contact"),
-        InlineKeyboardButton(text="🎁 Bonuslar va Chegirmalar", callback_data="bonuses")
+        InlineKeyboardButton(
+            text=" Manzil va Aloqa",
+            callback_data="contact",
+            icon_custom_emoji_id=EMOJI_IDS.get("📍")
+        ),
+        InlineKeyboardButton(
+            text=" Bonuslar va Chegirmalar",
+            callback_data="bonuses",
+            icon_custom_emoji_id=EMOJI_IDS.get("💎")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="🍔 Menyu", callback_data="menu"),
-        InlineKeyboardButton(text="📰 Yangiliklar", callback_data="news")
+        InlineKeyboardButton(
+            text=" Menyu",
+            callback_data="menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🍴")
+        ),
+        InlineKeyboardButton(
+            text=" Yangiliklar",
+            callback_data="news",
+            icon_custom_emoji_id=EMOJI_IDS.get("📰")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="🏆 Turnirlar", callback_data="tournaments"),
-        InlineKeyboardButton(text="👤 Profil", callback_data="profile")
+        InlineKeyboardButton(
+            text=" Turnirlar",
+            callback_data="tournaments",
+            icon_custom_emoji_id=EMOJI_IDS.get("🎮")
+        ),
+        InlineKeyboardButton(
+            text=" Profil",
+            callback_data="profile",
+            icon_custom_emoji_id=EMOJI_IDS.get("👤")
+        )
     )
     builder.row(
-        InlineKeyboardButton(text="📞 Admin bilan Aloqa", callback_data="contact_admin")
+        InlineKeyboardButton(
+            text=" Admin bilan Aloqa",
+            callback_data="contact_admin",
+            icon_custom_emoji_id=EMOJI_IDS.get("📞")
+        )
     )
     return builder.as_markup()
 
@@ -355,20 +525,42 @@ def cabin_types(prefix):
         InlineKeyboardButton(text="🔵 Standard Kabina", callback_data=f"{prefix}_standard"),
         InlineKeyboardButton(text="🟣 VIP Kabina", callback_data=f"{prefix}_vip")
     )
-    builder.row(InlineKeyboardButton(text="⬅️ Bosh Menyu", callback_data="main_menu"))
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
     return builder.as_markup()
 
 def select_room(cabin_type, rooms):
     builder = InlineKeyboardBuilder()
-    row_buttons = [InlineKeyboardButton(text=f"🚪 Q #{room}", callback_data=f"room_{cabin_type}_{room}") for room in rooms]
+    row_buttons = []
+    for room in rooms:
+        row_buttons.append(
+            InlineKeyboardButton(
+                text=f"🚪 Q #{room}",
+                callback_data=f"room_{cabin_type}_{room}",
+                icon_custom_emoji_id=EMOJI_IDS.get("🚪")
+            )
+        )
     for i in range(0, len(row_buttons), 2):
         if i + 1 < len(row_buttons):
             builder.row(row_buttons[i], row_buttons[i + 1])
         else:
             builder.row(row_buttons[i])
     builder.row(
-        InlineKeyboardButton(text="⬅️ Orqaga", callback_data="back_rooms"),
-        InlineKeyboardButton(text="🏠 Bosh Menyu", callback_data="main_menu")
+        InlineKeyboardButton(
+            text="️ Orqaga",
+            callback_data="back_rooms",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        ),
+        InlineKeyboardButton(
+            text=" Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        )
     )
     return builder.as_markup()
 
@@ -383,7 +575,13 @@ def menu_categories():
         InlineKeyboardButton(text="🍵 Choylar", callback_data="menu_choylar")
     )
     builder.row(InlineKeyboardButton(text="🍰 Shirinliklar", callback_data="menu_shirinliklar"))
-    builder.row(InlineKeyboardButton(text="⬅️ Bosh Menyu", callback_data="main_menu"))
+    builder.row(
+        InlineKeyboardButton(
+            text="️ Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
     return builder.as_markup()
 
 def menu_items_buttons(category_key, items: dict):
@@ -398,46 +596,145 @@ def menu_items_buttons(category_key, items: dict):
             row = []
     if row:
         builder.row(*row)
-    builder.row(InlineKeyboardButton(text="⬅️ Orqaga", callback_data="menu"))
-    builder.row(InlineKeyboardButton(text="🏠 Bosh Menyu", callback_data="main_menu"))
+    builder.row(
+        InlineKeyboardButton(
+            text="️ Orqaga",
+            callback_data="menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=" Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        )
+    )
     return builder.as_markup()
 
 def back_to_menu():
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="⬅️ Bosh Menyu", callback_data="main_menu"))
+    builder.row(
+        InlineKeyboardButton(
+            text=" Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
     return builder.as_markup()
 
 def item_detail_keyboard(category_key, item_id):
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🛒 Buyurtma berish", callback_data=f"order::{category_key}::{item_id}"))
-    builder.row(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"menu_{category_key}"))
-    builder.row(InlineKeyboardButton(text="🏠 Bosh Menyu", callback_data="main_menu"))
+    builder.row(
+        InlineKeyboardButton(
+            text="🛒 Buyurtma berish",
+            callback_data=f"order::{category_key}::{item_id}"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=" Orqaga",
+            callback_data=f"menu_{category_key}",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=" Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        )
+    )
     return builder.as_markup()
 
 def admin_main_menu():
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🏠 Kabinalarni tahrirlash", callback_data="adm_cabins"))
-    builder.row(InlineKeyboardButton(text="🚪 Xonalar holatini boshqarish", callback_data="adm_rooms"))
-    builder.row(InlineKeyboardButton(text="🍔 Menyuni boshqarish", callback_data="adm_menu"))
-    builder.row(InlineKeyboardButton(text="📝 Matnlarni tahrirlash", callback_data="adm_texts"))
+    builder.row(
+        InlineKeyboardButton(
+            text="🏘 Kabinalarni tahrirlash",
+            callback_data="adm_cabins",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🚪 Xonalar holatini boshqarish",
+            callback_data="adm_rooms",
+            icon_custom_emoji_id=EMOJI_IDS.get("🚪")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🍴 Menyuni boshqarish",
+            callback_data="adm_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🍴")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="📝 Matnlarni tahrirlash",
+            callback_data="adm_texts",
+            icon_custom_emoji_id=EMOJI_IDS.get("📝")
+        )
+    )
     return builder.as_markup()
 
 def admin_cabin_detail_keyboard(cabin_key):
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="✏️ Narxi", callback_data=f"admcabfield::{cabin_key}::price"))
-    builder.row(InlineKeyboardButton(text="✏️ Sig'imi", callback_data=f"admcabfield::{cabin_key}::capacity"))
-    builder.row(InlineKeyboardButton(text="✏️ Jihozlari", callback_data=f"admcabfield::{cabin_key}::equipment"))
-    builder.row(InlineKeyboardButton(text="🖼 Rasmi (link)", callback_data=f"admcabfield::{cabin_key}::image"))
-    builder.row(InlineKeyboardButton(text="⬅️ Orqaga", callback_data="adm_cabins"))
+    builder.row(
+        InlineKeyboardButton(text="✏️ Narxi", callback_data=f"admcabfield::{cabin_key}::price")
+    )
+    builder.row(
+        InlineKeyboardButton(text="✏️ Sig'imi", callback_data=f"admcabfield::{cabin_key}::capacity")
+    )
+    builder.row(
+        InlineKeyboardButton(text="✏️ Jihozlari", callback_data=f"admcabfield::{cabin_key}::equipment")
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🖼 Rasmi (link)",
+            callback_data=f"admcabfield::{cabin_key}::image",
+            icon_custom_emoji_id=EMOJI_IDS.get("🖼")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Orqaga",
+            callback_data="adm_cabins",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
     return builder.as_markup()
 
 def admin_menu_item_keyboard(category_key, item_id):
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="✏️ Nomi", callback_data=f"admitemfield::{category_key}::{item_id}::name"))
-    builder.row(InlineKeyboardButton(text="✏️ Narxi", callback_data=f"admitemfield::{category_key}::{item_id}::price"))
-    builder.row(InlineKeyboardButton(text="🖼 Rasmi (link)", callback_data=f"admitemfield::{category_key}::{item_id}::image"))
-    builder.row(InlineKeyboardButton(text="🗑 O'chirish", callback_data=f"admitemdel::{category_key}::{item_id}"))
-    builder.row(InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"admmenucat::{category_key}"))
+    builder.row(
+        InlineKeyboardButton(text="✏️ Nomi", callback_data=f"admitemfield::{category_key}::{item_id}::name")
+    )
+    builder.row(
+        InlineKeyboardButton(text="✏️ Narxi", callback_data=f"admitemfield::{category_key}::{item_id}::price")
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🖼 Rasmi (link)",
+            callback_data=f"admitemfield::{category_key}::{item_id}::image",
+            icon_custom_emoji_id=EMOJI_IDS.get("🖼")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🗑 O'chirish",
+            callback_data=f"admitemdel::{category_key}::{item_id}",
+            icon_custom_emoji_id=EMOJI_IDS.get("🗑")
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Orqaga",
+            callback_data=f"admmenucat::{category_key}",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        )
+    )
     return builder.as_markup()
 
 # ==================== BOT ====================
@@ -474,6 +771,10 @@ class RegistrationMiddleware(BaseMiddleware):
         if user is None:
             return await handler(event, data)
 
+        # Admin(lar) va "Admin bilan Aloqa" javob beruvchi shaxs ro'yxatdan o'tishi shart emas
+        if user.id == ADMIN_CONTACT_ID or is_admin(user.id):
+            return await handler(event, data)
+
         user_data = await fb_get(f"users/{user.id}")
         if not user_data or not user_data.get("phone"):
             if isinstance(event, CallbackQuery):
@@ -494,6 +795,8 @@ dp.callback_query.middleware(RegistrationMiddleware())
 
 # ==================== YORDAMCHI: XAVFSIZ TAHRIRLASH ====================
 async def safe_edit(callback: CallbackQuery, text: str, reply_markup=None, disable_web_page_preview=None):
+    # Matndagi emojilarni premium teglarga almashtiramiz
+    text = replace_emojis_in_text(text)
     if callback.message.photo:
         await callback.message.delete()
         await callback.message.answer(text, reply_markup=reply_markup, disable_web_page_preview=disable_web_page_preview)
@@ -509,6 +812,7 @@ async def send_product_card(message: Message, category_key: str, item_id: str, i
         f"📂 Kategoriya: {CATEGORY_NAMES.get(category_key, category_key)}\n"
         f"💰 Narx: {price}\n"
     )
+    text = replace_emojis_in_text(text)
     cache_key = f"item_{item_id}"
     if image and image.startswith("http"):
         photo_source = FILE_ID_CACHE.get(cache_key, image)
@@ -529,13 +833,17 @@ async def start(message: Message):
     user_data = await fb_get(f"users/{message.from_user.id}")
     if user_data and user_data.get("phone"):
         await message.answer(
-            "🎮 <b>InJoy Gaming Club</b> ga xush kelibsiz!\n\nKerakli bo'limni tanlang 👇",
+            replace_emojis_in_text(
+                "🎮 <b>InJoy Gaming Club</b> ga xush kelibsiz!\n\nKerakli bo'limni tanlang 👇"
+            ),
             reply_markup=main_menu()
         )
     else:
         await message.answer(
-            "👋 Assalomu alaykum! <b>InJoy Gaming Club</b> botiga xush kelibsiz.\n\n"
-            "Davom etish uchun telefon raqamingizni ulashing 👇",
+            replace_emojis_in_text(
+                "👋 Assalomu alaykum! <b>InJoy Gaming Club</b> botiga xush kelibsiz.\n\n"
+                "Davom etish uchun telefon raqamingizni ulashing 👇"
+            ),
             reply_markup=_contact_request_keyboard()
         )
 
@@ -553,7 +861,9 @@ async def handle_contact(message: Message):
     })
     await message.answer("✅ Ro'yxatdan muvaffaqiyatli o'tdingiz!", reply_markup=ReplyKeyboardRemove())
     await message.answer(
-        "🎮 <b>InJoy Gaming Club</b>\n\nKerakli bo'limni tanlang 👇",
+        replace_emojis_in_text(
+            "🎮 <b>InJoy Gaming Club</b>\n\nKerakli bo'limni tanlang 👇"
+        ),
         reply_markup=main_menu()
     )
 
@@ -562,7 +872,9 @@ async def back_to_main(callback: CallbackQuery):
     await callback.answer()
     await callback.message.delete()
     await callback.message.answer(
-        "🎮 <b>InJoy Gaming Club</b>\n\nKerakli bo'limni tanlang 👇",
+        replace_emojis_in_text(
+            "🎮 <b>InJoy Gaming Club</b>\n\nKerakli bo'limni tanlang 👇"
+        ),
         reply_markup=main_menu()
     )
 
@@ -619,6 +931,7 @@ async def ai_chat(message: Message, state: FSMContext):
         "Boshqa hech narsa yozma, faqat sof JSON."
     )
 
+    resp = None
     parsed = {"type": "chat", "text": "Kechirasiz, hozir javob bera olmadim. Qaytadan urinib ko'ring."}
     try:
         resp = await ai_client.aio.models.generate_content(
@@ -635,9 +948,9 @@ async def ai_chat(message: Message, state: FSMContext):
         if json_match:
             resp_text = json_match.group()
         parsed = json.loads(resp_text)
-    except Exception as e:
+    except Exception:
         logging.exception("Gemini javobida xatolik")
-        if resp and hasattr(resp, 'text') and resp.text:
+        if resp is not None and getattr(resp, "text", None):
             parsed = {"type": "chat", "text": resp.text[:500]}
 
     msg_type = parsed.get("type", "chat")
@@ -690,13 +1003,18 @@ async def cabin_detail(callback: CallbackQuery):
     image = cabin.get("image", "")
     cache_key = f"cabin_{cabin_key}"
     if image and image.startswith("http"):
-        await callback.message.delete()
-        photo_source = FILE_ID_CACHE.get(cache_key, image)
-        sent = await callback.message.answer_photo(
-            photo=photo_source, caption=text, reply_markup=select_room(cabin_key, rooms)
-        )
-        if cache_key not in FILE_ID_CACHE and sent.photo:
-            FILE_ID_CACHE[cache_key] = sent.photo[-1].file_id
+        try:
+            await callback.message.delete()
+            photo_source = FILE_ID_CACHE.get(cache_key, image)
+            sent = await callback.message.answer_photo(
+                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms)
+            )
+            if cache_key not in FILE_ID_CACHE and sent.photo:
+                FILE_ID_CACHE[cache_key] = sent.photo[-1].file_id
+        except Exception:
+            logging.exception("Kabina rasmini yuborishda xatolik: %s", image)
+            FILE_ID_CACHE.pop(cache_key, None)
+            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms))
     else:
         await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms))
 
@@ -762,8 +1080,10 @@ async def confirm_booking(message: Message, state: FSMContext):
     user = message.from_user
 
     await message.answer(
-        f"✅ <b>Bron tasdiqlandi!</b>\n\n🏠 Kabina: {cabin.get('name', data['cabin'])}\n"
-        f"🚪 Xona: Q #{data['room']}\n⏰ Vaqt: {message.text}\n\n📞 Admin siz bilan tez orada bog'lanadi!",
+        replace_emojis_in_text(
+            f"✅ <b>Bron tasdiqlandi!</b>\n\n🏠 Kabina: {cabin.get('name', data['cabin'])}\n"
+            f"🚪 Xona: Q #{data['room']}\n⏰ Vaqt: {message.text}\n\n📞 Admin siz bilan tez orada bog'lanadi!"
+        ),
         reply_markup=back_to_menu()
     )
 
@@ -773,9 +1093,10 @@ async def confirm_booking(message: Message, state: FSMContext):
         f"🏠 Kabina: {cabin.get('name', data['cabin'])}\n🚪 Xona: Q #{data['room']}\n⏰ Vaqt: {message.text}"
     )
     try:
-        await bot.send_message(CABIN_BOOKING_CHAT_ID, group_text)
+        await bot.send_message(CABIN_BOOKING_CHAT_ID, replace_emojis_in_text(group_text))
     except Exception:
         logging.exception("Kabina bronini guruhga yuborishda xatolik")
+        await notify_admins_of_group_failure("kabina broni", group_text)
     try:
         await fb_push("orders", {"type": "cabin_booking", "user_id": user.id, "cabin": data["cabin"],
                                   "room": data["room"], "time": message.text})
@@ -812,8 +1133,10 @@ async def confirm_quick_booking(message: Message, state: FSMContext):
     user = message.from_user
 
     await message.answer(
-        f"✅ <b>Tez bron tasdiqlandi!</b>\n\n🏠 Kabina: {cabin.get('name', data['cabin'])}\n"
-        f"⏰ Vaqt: {message.text}\n\n📞 Admin siz bilan tez orada bog'lanadi!",
+        replace_emojis_in_text(
+            f"✅ <b>Tez bron tasdiqlandi!</b>\n\n🏠 Kabina: {cabin.get('name', data['cabin'])}\n"
+            f"⏰ Vaqt: {message.text}\n\n📞 Admin siz bilan tez orada bog'lanadi!"
+        ),
         reply_markup=back_to_menu()
     )
 
@@ -822,9 +1145,10 @@ async def confirm_quick_booking(message: Message, state: FSMContext):
         f"🆔 ID: {user.id}\n🏠 Kabina: {cabin.get('name', data['cabin'])}\n⏰ Vaqt: {message.text}"
     )
     try:
-        await bot.send_message(CABIN_BOOKING_CHAT_ID, group_text)
+        await bot.send_message(CABIN_BOOKING_CHAT_ID, replace_emojis_in_text(group_text))
     except Exception:
         logging.exception("Tez bronni guruhga yuborishda xatolik")
+        await notify_admins_of_group_failure("tez-kor bron", group_text)
     try:
         await fb_push("orders", {"type": "quick_booking", "user_id": user.id, "cabin": data["cabin"], "time": message.text})
     except Exception:
@@ -880,7 +1204,7 @@ async def start_menu_order(callback: CallbackQuery, state: FSMContext):
         text = (f"🛒 <b>{item_name}</b>\n\nAvval qaysi xonada ekanligingizni ayting.\n"
                 "⌨️ Xona raqamini yozing (masalan: 5):")
 
-    await callback.message.answer(text, reply_markup=back_to_menu())
+    await callback.message.answer(replace_emojis_in_text(text), reply_markup=back_to_menu())
 
 @dp.message(StateFilter(MenuOrderStates.entering_room))
 async def set_order_room(message: Message, state: FSMContext):
@@ -889,8 +1213,10 @@ async def set_order_room(message: Message, state: FSMContext):
     data = await state.get_data()
     await state.set_state(MenuOrderStates.entering_quantity)
     await message.answer(
-        f"🚪 Xona: {room_text}\n\n🛒 <b>{data.get('order_item')}</b>\n\n"
-        "Nechta / qancha miqdorda buyurtma qilmoqchisiz?\n⌨️ Javobingizni yozib yuboring:",
+        replace_emojis_in_text(
+            f"🚪 Xona: {room_text}\n\n🛒 <b>{data.get('order_item')}</b>\n\n"
+            "Nechta / qancha miqdorda buyurtma qilmoqchisiz?\n⌨️ Javobingizni yozib yuboring:"
+        ),
         reply_markup=back_to_menu()
     )
 
@@ -901,16 +1227,20 @@ async def confirm_menu_order(message: Message, state: FSMContext):
     user_data = await fb_get(f"users/{user.id}") or {}
     room = user_data.get("current_room", "noma'lum")
 
-    await message.answer("✅ <b>Buyurtmangiz qabul qilindi!</b>\n\nAdmin tez orada siz bilan bog'lanadi.", reply_markup=back_to_menu())
+    await message.answer(
+        replace_emojis_in_text("✅ <b>Buyurtmangiz qabul qilindi!</b>\n\nAdmin tez orada siz bilan bog'lanadi."),
+        reply_markup=back_to_menu()
+    )
 
     group_text = (
         f"🛒 <b>Yangi menyu buyurtmasi</b>\n\n👤 Mijoz: {user.full_name} (@{user.username or 'username yoq'})\n"
         f"🆔 ID: {user.id}\n🚪 Xona: {room}\n📦 Mahsulot: {data.get('order_item', '-')}\n📝 Miqdor/Izoh: {message.text}"
     )
     try:
-        await bot.send_message(MENU_ORDERS_CHAT_ID, group_text)
+        await bot.send_message(MENU_ORDERS_CHAT_ID, replace_emojis_in_text(group_text))
     except Exception:
         logging.exception("Menyu buyurtmasini guruhga yuborishda xatolik")
+        await notify_admins_of_group_failure("menyu buyurtmasi", group_text)
     try:
         await fb_push("orders", {"type": "menu", "user_id": user.id, "room": room,
                                   "item": data.get("order_item"), "note": message.text})
@@ -955,15 +1285,68 @@ async def show_profile(callback: CallbackQuery):
     text += f"🚪 Joriy xona: <b>{user_data.get('current_room', 'belgilanmagan')}</b>"
     await safe_edit(callback, text=text, reply_markup=back_to_menu())
 
-# ---------- ADMIN BILAN ALOQA ----------
+# ---------- ADMIN BILAN ALOQA (ikki tomonlama xabar almashish) ----------
 @dp.callback_query(F.data == "contact_admin")
-async def contact_admin(callback: CallbackQuery):
+async def contact_admin(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
+    await state.set_state(ContactAdminStates.chatting)
     await safe_edit(
         callback,
-        text="📞 <b>Admin bilan Aloqa</b>\n\nBot bo'yicha admin: <b>@aliakxmedov</b>\n\nSavol yoki takliflaringiz bo'lsa, bemalol yozing!",
+        text=(
+            "📞 <b>Admin bilan Aloqa</b>\n\n"
+            "Bot bo'yicha admin: <b>@aliakxmedov</b>\n\n"
+            "✍️ Savol yoki taklifingizni shu yerga yozing — xabaringiz to'g'ridan-to'g'ri "
+            "adminga yuboriladi va admin javob bergach, siz shu chatda javobni olasiz."
+        ),
         reply_markup=back_to_menu()
     )
+
+@dp.message(StateFilter(ContactAdminStates.chatting))
+async def relay_user_message_to_admin(message: Message):
+    user = message.from_user
+    try:
+        forwarded = await bot.forward_message(
+            chat_id=ADMIN_CONTACT_ID,
+            from_chat_id=message.chat.id,
+            message_id=message.message_id
+        )
+        CONTACT_FORWARD_MAP[forwarded.message_id] = user.id
+        await bot.send_message(
+            ADMIN_CONTACT_ID,
+            f"☝️ Yuqoridagi xabar foydalanuvchidan: {user.full_name} "
+            f"(@{user.username or 'username yoq'}, ID: {user.id})\n\n"
+            "Javob berish uchun ushbu xabarga <b>Reply</b> qiling."
+        )
+        await message.answer("✅ Xabaringiz adminga yuborildi. Javobni shu yerda kuting.")
+    except Exception:
+        logging.exception("Foydalanuvchi xabarini adminga yuborishda xatolik")
+        await message.answer("⚠️ Xabaringizni yuborib bo'lmadi. Birozdan so'ng qaytadan urinib ko'ring.")
+
+@dp.message(F.reply_to_message, F.chat.id == ADMIN_CONTACT_ID)
+async def relay_admin_reply_to_user(message: Message):
+    target_user_id = CONTACT_FORWARD_MAP.get(message.reply_to_message.message_id)
+    if not target_user_id:
+        return
+    try:
+        await bot.send_message(
+            target_user_id,
+            f"📩 <b>Admindan javob:</b>\n\n{message.text or message.caption or ''}"
+        )
+        await message.reply("✅ Javobingiz foydalanuvchiga yuborildi.")
+    except Exception:
+        logging.exception("Admin javobini foydalanuvchiga yuborishda xatolik")
+        await message.reply("⚠️ Javobni yuborib bo'lmadi (foydalanuvchi botni bloklagan bo'lishi mumkin).")
+
+async def notify_admins_of_group_failure(order_type: str, order_text: str):
+    """Guruhga (menyu/kabina) xabar yuborib bo'lmasa, admin(lar)ga shaxsiy xabar beradi."""
+    try:
+        await bot.send_message(
+            ADMIN_CONTACT_ID,
+            f"⚠️ <b>Diqqat!</b> \"{order_type}\" guruhga yuborilmadi "
+            f"(guruh ID noto'g'ri yoki bot guruhda emas). Buyurtma tafsilotlari:\n\n{order_text}"
+        )
+    except Exception:
+        logging.exception("Admin(lar)ga guruh xatosi haqida xabar berib bo'lmadi")
 
 # ---------- ORQAGA ----------
 @dp.callback_query(F.data == "back_rooms")
