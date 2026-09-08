@@ -120,6 +120,154 @@ EMOJI_IDS = {
     "🔖": "5359629206948976159",
 }
 
+# ==================== MENYU MAHSULOTLARI UCHUN PREMIUM EMOJI ID LAR ====================
+# Har bir mahsulot (item_id) uchun tugmada ko'rsatiladigan premium emoji ID
+PRODUCT_EMOJI_IDS = {
+    "tuc": "5262667623002318450",
+    "idish_qurt_assorti": "5260303767491880858",
+    "lays_100_gr": "5262657534124145649",
+    "anchous": "5260688716820686344",
+    "keshyu": "5260660541835226955",
+    "lays_140_gr": "5260300249913665054",
+    "araxis": "5260383061178099475",
+    "keshyu_ermak_40_gr": "5260512240909460935",
+    "lays_225_gr": "5260740015910069355",
+    "araxis_ermak_50_gr": "5260712240356565591",
+    "kostochki": "5262540981596627764",
+    "lays_70_gr": "5262598933590352279",
+    "yongoq_assortisi": "5260632001777544692",
+    "qurt_30_gr_zavq": "5260666786717675351",
+    "pringles_165_gr": "5262546023888235255",
+    "ermak_yongoq_assortisi_45_gr": "5262965521933970117",
+    "qurt_ermak_30_gr": "5260229232629426314",
+    "pringles_katta": "5262962322183333293",
+    "bodom": "5260502053247033031",
+    "qurt_ermak_60_gr": "5260220475191108521",
+    "pringles_kichik": "5262652350098614260",
+    "grenki": "5260500150576525267",
+    "qurt_ixlos_assorti": "5262743394815354369",
+    "pistashki": "5260717192453857924",
+    "semechki_100_gr": "5262867772773280550",
+    "pistashki_ermak_30_gr": "5262530351552570594",
+    "semechki_160_gr": "5260406301246142657",
+    "flint_suxariki": "5260427295046283417",
+    "sirniye_palochki_suluguni": "5260331998311917842",
+    "sirniye_palochki_150": "5260319890799112710",
+    "sirniye_palochki_big_suluguni": "5262790871383842773",
+    "tosh_qurt_30_gr_zavq": "5262868069126024561",
+    "tosh_qurt_ixlos": "5262530098149498411",
+    "18_plus": "5262583123815738090",
+    "evian": "5262491271645143612",
+    "bonaqua_gazsiz_0_5_l": "5260538899771466652",
+    "barbican": "5260363102465074438",
+    "gorilla": "5262558251660124572",
+    "bonaqua_gazli_0_5_l": "5262836964972863265",
+    "blanc_blue": "5262705392944720028",
+    "pulpy": "5260568801333782866",
+    "borjomi_0_5_l": "5260343624788387762",
+    "chupa_chups": "5260761323242826864",
+    "red_bull_0_25_l": "5260276563169029424",
+    "borjomi_limonad": "5262563564534672552",
+    "dovcha_green_0_5_l": "5260482416656559398",
+    "rich_sharbati_1_l": "5262484043215186845",
+    "kapuchino_qahva": "5260504282335061426",
+    "dovcha_nok_0_5_l": "5262838210513381392",
+    "royal": "5262535286469995459",
+    "cola_0_25_l": "5260566623785364302",
+    "dovcha_olcha_0_5_l": "5260519082792363495",
+    "schweppes": "5262778617842146779",
+    "cola_0_5_l": "5260296556241792479",
+    "dovcha_xtra_0_33_l": "5262471682299307966",
+    "americano_qahva": "5260267225910127260",
+    "latte_qahva": "5262898735192522717",
+    "limonad_tsitrus_marakuya_1_l": "5260456578133307238",
+    "cola_1_l": "5260291939151949038",
+    "limonad_mango_marakuya_0_5_l": "5262456778762794562",
+    "limonad_tarxun_0_5_l": "5260338956158939828",
+    "cola_jb_0_5_l": "5260528188123030137",
+    "limonad_mango_marakuya_1_l": "5262683578805824180",
+    "limonad_tarxun_1_l": "5262678489269577063",
+    "cola_zero_0_25_l": "5260730012931237908",
+    "limonad_mojito_klassik_0_5_l": "5262889977754198557",
+    "mojito_0_33_l": "5260389353305190236",
+    "cola_shisha": "5260684211399994981",
+    "limonad_mojito_klassik_1_l": "5262917431185153361",
+    "mojito_0_5_l": "5262769168914095451",
+    "laymon_fresh_yashil_0_5_l": "5260422038006312286",
+    "limonad_mojito_qulupnay_0_5_l": "5260352837493236772",
+    "natakhtari": "5260675153313968608",
+    "laymon_fresh_big": "5262991192953495372",
+    "limonad_mojito_qulupnay_1_l": "5262995496510726395",
+    "rich_0_2_l": "5260207238101905246",
+    "laymon_fresh_shisha": "5260407070045287800",
+    "limonad_tsitrus_marakuya_0_5_l": "5260214058509971911",
+    "fanta_shisha": "5260589412881836579",
+    "chortoq_0_5_l": "5260407602621231260",
+    "sprite_0_25_l": "5260471060763030118",
+    "fuze_tea_0_5_l_assorti": "5262818183080878868",
+    "espresso_qahva": "5260400807982969415",
+    "sprite_0_5_l": "5262831553314074151",
+    "fuze_tea_1_l_assorti": "5262493818560752535",
+    "sprite_1_l": "5260624519944513854",
+    "fuze_tea_gazsiz": "5262934654004012262",
+    "sprite_shisha": "5260690400447866000",
+    "fuze_tea_gazsiz_250_ml": "5262840813263561967",
+    "fanta_0_25_l": "5260504415479048656",
+    "oddiy_choy": "5260759656795517540",
+    "fanta_0_5_l": "5262877938960871210",
+    "limonli_choy": "5262655682993234417",
+    "fanta_1_l": "5262698009895939257",
+    "chernogolovka_shisha": "5260275549556746022",
+    "qoshimcha_limon": "5262889367868845601",
+    "rezavor_tami": "5262524553346721158",
+    "qoshimcha_shakar": "5260551166198068897",
+    "haqiqiy_jentelmen_choyi": "5260732598501547896",
+    "sokin_huzur": "5260748026024077398",
+    "tropik_tam": "5262536454701098701",
+    "sitrus_zarbasi": "5262817860958331723",
+    "yaseminli_choy": "5262816705612128851",
+    "earl_grey_cream_choyi": "5260467246832071283",
+    "7_days": "5262832931998575578",
+    "kitkat_mini": "5260342155909573502",
+    "millenium_air": "5260577455692883162",
+    "alpen_gold_max_fun": "5260299189056743439",
+    "m_and_ms_sariq": "5260558536361947079",
+    "millenium_gold": "5260730210499733181",
+    "biscolata_stix": "5262969937160348640",
+    "m_and_ms_qora": "5260547743109130157",
+    "oreo": "5262600518433283859",
+    "biscolata_pechenye": "5262794088314346681",
+    "mars": "5260630511423890733",
+    "oreo_big": "5262702794489501370",
+    "bounty": "5263012951257817597",
+    "merci_plitka": "5260238638607804546",
+    "picnic": "5260584306165726231",
+    "choco_pie_big": "5262565591759234823",
+    "milka_brownie": "5260486290717062366",
+    "ritter_sport": "5262772364369767521",
+    "choco_pie_mini": "5260584593928531359",
+    "milka_pechenye": "5260704402041253570",
+    "skittles": "5260485899875040615",
+    "florida_pechenye": "5262645508215709878",
+    "milka_plitka": "5262868842220134966",
+    "kinder_shokolad_mini": "5260600455242754097",
+    "xottabich_premium": "5260471370000671783",
+    "snickers": "5260675389537166630",
+    "qahva_va_choy_pechenyesi": "5262498375521052845",
+    "snickers_big_ormon_yongoqli": "5262926661069874636",
+    "mamba": "5262699495954622749",
+    "twix": "5262941723520181416",
+    "marmelad": "5262563182282581138",
+    "barni": "5262668597959894417",
+    "shirin_yongoqchalar": "5262484923683480842",
+    "kinder_bueno": "5260432625100696289",
+    "pistali_yongoqchalar": "5262689153673374899",
+    "kinder_delice": "5262617754137041317",
+    "mevali_assorti": "5260748644499370700",
+    "kinder_shokolad": "5262740272374128038",
+    "xottabich": "5260519258886023419",
+}
+
 def wrap_emoji(emoji: str, text: str = None) -> str:
     """Matn ichidagi emojini premium <tg-emoji> tegi bilan o‘rab beradi."""
     if not text:
@@ -152,12 +300,9 @@ ADMIN_CONTACT_ID = 6147283506
 MENU_ORDERS_CHAT_ID = -5171281890
 CABIN_BOOKING_CHAT_ID = -1004401105554
 
-try:
-    with open("auto_images.json", "r", encoding="utf-8") as f:
-        IMAGES = json.load(f)
-except FileNotFoundError:
-    IMAGES = {}
-    print("⚠️ auto_images.json fayli topilmadi! Rasmlar bo'sh boshlanadi.")
+# ℹ️ Rasmlar endi auto_images.json fayldan emas, FAQAT Firebase'dan olinadi.
+# Kabina/mahsulot rasmi Firebase'dagi "image" maydonida saqlanadi va Admin panel
+# orqali (✏️ tahrirlash > 🖼 Rasmi) istalgan vaqt yangilanishi mumkin.
 
 FILE_ID_CACHE = {}
 # "Admin bilan Aloqa" uchun: {admin_chatga_forward_qilingan_xabar_id: foydalanuvchi_id}
@@ -359,15 +504,18 @@ def is_admin(user_id: int) -> bool:
 async def seed_database():
     if await fb_get("cabins") is None:
         cabins_seed = {
+            # ℹ️ Rasm maydoni bo'sh boshlanadi — kabina rasmini Admin panel orqali
+            # (yoki to'g'ridan-to'g'ri Firebase'da) keyinroq qo'shasiz, chunki rasmlar
+            # endi faqat Firebase'dan olinadi, lokal fayldan emas.
             "mini": {"name": "Mini Kabina", "emoji": "🟢", "capacity": "5 kishigacha",
                      "price": "70 000 so'm / soat", "equipment": "PS5 konsol, 4K TV",
-                     "total": "4 ta Mini Kabina", "rooms": [1, 2, 3, 4], "image": IMAGES.get("mini_kabina", "")},
+                     "total": "4 ta Mini Kabina", "rooms": [1, 2, 3, 4], "image": ""},
             "standard": {"name": "Standard Kabina", "emoji": "🔵", "capacity": "8 kishigacha",
                          "price": "100 000 so'm / soat", "equipment": "PS5 konsol, 4K TV, ovoz tizimi",
-                         "total": "3 ta Standard Kabina", "rooms": [5, 6, 7], "image": IMAGES.get("standard_kabina", "")},
+                         "total": "3 ta Standard Kabina", "rooms": [5, 6, 7], "image": ""},
             "vip": {"name": "VIP Kabina", "emoji": "🟣", "capacity": "15 kishigacha",
                     "price": "160 000 so'm / soat", "equipment": "PS5 konsol, 4K TV, ovoz tizimi, mini-bar",
-                    "total": "2 ta VIP Kabina", "rooms": [8, 9], "image": IMAGES.get("vip_kabina", "")},
+                    "total": "2 ta VIP Kabina", "rooms": [8, 9], "image": ""},
         }
         await fb_set("cabins", cabins_seed)
         logging.info("✅ Kabinalar bazaga yozildi")
@@ -383,14 +531,17 @@ async def seed_database():
 
     menu_data = await fb_get("menu")
     if menu_data is None or menu_data == {} or not any(menu_data.values()):
+        # ℹ️ Faqat Firebase'da menyu umuman bo'lmagan holatda (birinchi ishga tushirishda)
+        # boshlang'ich ro'yxat sifatida yoziladi — rasmlar bo'sh, keyin admin panelda
+        # yoki to'g'ridan-to'g'ri Firebase'da to'ldiriladi.
         menu_seed = {}
         for category_key, items in MENU_SEED_ITEMS.items():
             menu_seed[category_key] = {
-                item_key: {"name": name, "price": "", "image": IMAGES.get(item_key, "")}
+                item_key: {"name": name, "price": "", "image": ""}
                 for name, item_key in items
             }
         await fb_set("menu", menu_seed)
-        logging.info("✅ Menyu bazaga yozildi (narxlar bo'sh — admin panelda to'ldiring!)")
+        logging.info("✅ Menyu bazaga yozildi (narxlar va rasmlar bo'sh — admin panelda to'ldiring!)")
 
     if await fb_get("texts") is None:
         await fb_set("texts", {
@@ -590,7 +741,9 @@ def menu_items_buttons(category_key, items: dict):
     row = []
     for item_id, item in entries:
         name = (item or {}).get("name", item_id)
-        row.append(InlineKeyboardButton(text=name, callback_data=f"item::{category_key}::{item_id}"))
+        emoji_id = PRODUCT_EMOJI_IDS.get(item_id)
+        btn_text = f" {name}" if emoji_id else name
+        row.append(InlineKeyboardButton(text=btn_text, callback_data=f"item::{category_key}::{item_id}", icon_custom_emoji_id=emoji_id))
         if len(row) == 2:
             builder.row(*row)
             row = []
