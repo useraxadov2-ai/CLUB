@@ -290,7 +290,7 @@ def replace_emojis_in_text(text: str) -> str:
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://club-3d454-default-rtdb.firebaseio.com").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
-FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "l9ALZt5KXATbvPLADARXcXmrtp17nKTbyhlhdWq2")
+FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 
 AI_MODEL = "gemini-3-flash-preview"
 
@@ -702,7 +702,7 @@ def cabin_types(prefix):
     )
     return builder.as_markup()
 
-def select_room(cabin_type, rooms):
+def select_room(cabin_type, rooms, panorama_url=None):
     builder = InlineKeyboardBuilder()
     row_buttons = []
     for room in rooms:
@@ -718,6 +718,13 @@ def select_room(cabin_type, rooms):
             builder.row(row_buttons[i], row_buttons[i + 1])
         else:
             builder.row(row_buttons[i])
+    if panorama_url:
+        builder.row(
+            InlineKeyboardButton(
+                text="🌐 360° Panorama ko'rish",
+                callback_data=f"panorama_{cabin_type}"
+            )
+        )
     builder.row(
         InlineKeyboardButton(
             text="️ Orqaga",
@@ -866,6 +873,9 @@ def admin_cabin_detail_keyboard(cabin_key):
             callback_data=f"admcabfield::{cabin_key}::image",
             icon_custom_emoji_id=EMOJI_IDS.get("🖼")
         )
+    )
+    builder.row(
+        InlineKeyboardButton(text="🌐 Panorama (link)", callback_data=f"admcabfield::{cabin_key}::panorama")
     )
     builder.row(
         InlineKeyboardButton(
@@ -1171,22 +1181,43 @@ async def cabin_detail(callback: CallbackQuery):
 
     rooms = cabin.get("rooms", [])
     image = cabin.get("image", "")
+    panorama_url = cabin.get("panorama", "")
     cache_key = f"cabin_{cabin_key}"
     if image and image.startswith("http"):
         try:
             await callback.message.delete()
             photo_source = FILE_ID_CACHE.get(cache_key, image)
             sent = await callback.message.answer_photo(
-                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms)
+                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms, panorama_url)
             )
             if cache_key not in FILE_ID_CACHE and sent.photo:
                 FILE_ID_CACHE[cache_key] = sent.photo[-1].file_id
         except Exception:
             logging.exception("Kabina rasmini yuborishda xatolik: %s", image)
             FILE_ID_CACHE.pop(cache_key, None)
-            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms))
+            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms, panorama_url))
     else:
-        await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms))
+        await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms, panorama_url))
+
+@dp.callback_query(F.data.startswith("panorama_"))
+async def show_panorama(callback: CallbackQuery):
+    await callback.answer()
+    cabin_key = callback.data.split("_", 1)[1]
+    cabin = await fb_get(f"cabins/{cabin_key}") or {}
+    panorama_url = cabin.get("panorama", "")
+    if panorama_url and panorama_url.startswith("http"):
+        try:
+            await callback.message.answer_photo(
+                photo=panorama_url,
+                caption=replace_emojis_in_text(
+                    f"🌐 <b>{cabin.get('name', cabin_key)} — 360° Panorama</b>"
+                )
+            )
+        except Exception:
+            logging.exception("Panorama rasmini yuborishda xatolik: %s", panorama_url)
+            await callback.message.answer("⚠️ Panorama rasmini yuklab bo'lmadi.")
+    else:
+        await callback.message.answer("⚠️ Bu kabina uchun panorama rasm hali qo'shilmagan.")
 
 # ---------- BO'SH JOYLAR ----------
 @dp.callback_query(F.data == "empty_places")
@@ -1570,7 +1601,7 @@ async def admin_cabin_field(callback: CallbackQuery, state: FSMContext):
     _, cabin_key, field = callback.data.split("::")
     await state.update_data(cabin_key=cabin_key, field=field)
     await state.set_state(AdminCabinEditStates.waiting_value)
-    field_names = {"price": "narx", "capacity": "sig'im", "equipment": "jihozlar", "image": "rasm linki"}
+    field_names = {"price": "narx", "capacity": "sig'im", "equipment": "jihozlar", "image": "rasm linki", "panorama": "panorama (360°) rasm linki"}
     await callback.message.answer(f"✏️ Yangi {field_names.get(field, field)} qiymatini yuboring:")
 
 @dp.message(StateFilter(AdminCabinEditStates.waiting_value))
