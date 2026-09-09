@@ -25,6 +25,12 @@ load_dotenv()
 
 # ==================== PREMIUM EMOJI ID LAR ====================
 EMOJI_IDS = {
+    "☕️":"5348559895111153311",
+    "🚬": "5348192709767082803",
+    "😎1" : "5323324376676850256",
+    "🪽" : "5296389361158351746",
+    "🍰": "5240208285528773246",
+    "😀": "5967333011652350314",
     "🤖": "5258093637450866522",
     "🏘": "5257963315258204021",
     "📂": "5258514780469075716",
@@ -286,10 +292,10 @@ def replace_emojis_in_text(text: str) -> str:
     return text
 
 # ==================== SOZLAMALAR ====================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8746996595:AAEIbidc49taYa-CVHhWLkYWU_gv77xESpQ")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://injoygame-cba8a-default-rtdb.firebaseio.com/").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
-FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "4dtBCR5DJbHA0TIODthmpaIM7Ieta9quuZxmQUB3")
+FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 
 AI_MODEL = "gemini-3-flash-preview"
 
@@ -667,6 +673,16 @@ def main_menu():
             icon_custom_emoji_id=EMOJI_IDS.get("📞")
         )
     )
+    builder.row(
+    InlineKeyboardButton(
+        text=(
+            "Qulay buyurtma"
+        ),
+        url="https://t.me/uzinjoy_robot/opn?startapp=uz",
+        icon_custom_emoji_id=EMOJI_IDS.get("😀")
+    )
+    )
+
     return builder.as_markup()
 
 def cabin_types(prefix):
@@ -718,14 +734,14 @@ def select_room(cabin_type, rooms):
 def menu_categories():
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text="🍿 Gazaklar", callback_data="menu_gazaklar"),
-        InlineKeyboardButton(text="🚬 Tamaki", callback_data="menu_tamaki")
+        InlineKeyboardButton(text="Gazaklar", callback_data="menu_gazaklar",icon_custom_emoji_id=EMOJI_IDS.get("😎1")),
+        InlineKeyboardButton(text="Tamaki", callback_data="menu_tamaki",icon_custom_emoji_id=EMOJI_IDS.get("🚬"))
     )
     builder.row(
-        InlineKeyboardButton(text="🥤 Suvlar", callback_data="menu_suvlar"),
-        InlineKeyboardButton(text="🍵 Choylar", callback_data="menu_choylar")
+        InlineKeyboardButton(text="Suvlar", callback_data="menu_suvlar",icon_custom_emoji_id=EMOJI_IDS.get("🪽")),
+        InlineKeyboardButton(text=" Choylar", callback_data="menu_choylar",icon_custom_emoji_id=EMOJI_IDS.get("☕"))
     )
-    builder.row(InlineKeyboardButton(text="🍰 Shirinliklar", callback_data="menu_shirinliklar"))
+    builder.row(InlineKeyboardButton(text="Shirinliklar", callback_data="menu_shirinliklar",icon_custom_emoji_id=EMOJI_IDS.get("🍰")))
     builder.row(
         InlineKeyboardButton(
             text="️ Bosh Menyu",
