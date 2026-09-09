@@ -14,6 +14,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
+from aiogram.exceptions import TelegramUnauthorizedError, TelegramNetworkError
 
 import httpx
 from dotenv import load_dotenv
@@ -289,7 +290,7 @@ def replace_emojis_in_text(text: str) -> str:
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://club-3d454-default-rtdb.firebaseio.com").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
-FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
+FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "l9ALZt5KXATbvPLADARXcXmrtp17nKTbyhlhdWq2")
 
 AI_MODEL = "gemini-3-flash-preview"
 
@@ -474,24 +475,40 @@ async def fb_get(path: str):
         return None
 
 async def fb_set(path: str, data):
-    r = await http_client.put(_fb_url(path), json=data)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = await http_client.put(_fb_url(path), json=data)
+        r.raise_for_status()
+        return r.json()
+    except Exception:
+        logging.exception("Firebase'ga yozishda xatolik: %s", path)
+        return None
 
 async def fb_update(path: str, data: dict):
-    r = await http_client.patch(_fb_url(path), json=data)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = await http_client.patch(_fb_url(path), json=data)
+        r.raise_for_status()
+        return r.json()
+    except Exception:
+        logging.exception("Firebase'ni yangilashda xatolik: %s", path)
+        return None
 
 async def fb_push(path: str, data):
-    r = await http_client.post(_fb_url(path), json=data)
-    r.raise_for_status()
-    return r.json()
+    try:
+        r = await http_client.post(_fb_url(path), json=data)
+        r.raise_for_status()
+        return r.json()
+    except Exception:
+        logging.exception("Firebase'ga qo'shishda xatolik: %s", path)
+        return None
 
 async def fb_delete(path: str):
-    r = await http_client.delete(_fb_url(path))
-    r.raise_for_status()
-    return True
+    try:
+        r = await http_client.delete(_fb_url(path))
+        r.raise_for_status()
+        return True
+    except Exception:
+        logging.exception("Firebase'dan o'chirishda xatolik: %s", path)
+        return False
 
 def slugify(text: str) -> str:
     text = text.strip().lower().replace("'", "").replace("’", "")
@@ -1791,11 +1808,37 @@ async def error_handler(event):
 
 # ==================== ISHGA TUSHIRISH ====================
 async def main():
-    await seed_database()
-    await bot.delete_webhook(drop_pending_updates=True)
-    print("✅ Bot ishga tushdi!")
     try:
-        await dp.start_polling(bot)
+        await seed_database()
+    except Exception:
+        logging.exception("Bazani boshlang'ich to'ldirishda xatolik (davom etamiz)")
+
+    retry_delay = 5
+    try:
+        while True:
+            try:
+                await bot.delete_webhook(drop_pending_updates=True)
+                print("✅ Bot ishga tushdi!")
+                await dp.start_polling(bot)
+                break  # start_polling normal tugadi (masalan, to'xtatildi)
+            except TelegramUnauthorizedError:
+                # BOT_TOKEN noto'g'ri yoki bekor qilingan — qayta urinish foyda bermaydi,
+                # shuning uchun jarayonni yiqitmasdan aniq xabar bilan kutamiz.
+                logging.error(
+                    "❌ BOT_TOKEN noto'g'ri yoki bekor qilingan (Unauthorized). "
+                    "@BotFather'dan yangi token oling va BOT_TOKEN env o'zgaruvchisini yangilang. "
+                    "60 soniyadan so'ng qayta tekshiriladi..."
+                )
+                await asyncio.sleep(60)
+            except TelegramNetworkError:
+                logging.exception("Telegram bilan tarmoq aloqasida xatolik, qayta urinamiz")
+                await asyncio.sleep(retry_delay)
+            except Exception:
+                logging.exception(
+                    "Bot ishlashi davomida kutilmagan xatolik, %s soniyadan so'ng qayta urinamiz",
+                    retry_delay,
+                )
+                await asyncio.sleep(retry_delay)
     finally:
         await http_client.aclose()
         if ai_client is not None:
@@ -1805,4 +1848,7 @@ async def main():
                 pass
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("Bot to'xtatildi (KeyboardInterrupt)")
