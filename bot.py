@@ -14,7 +14,6 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
-from aiogram.exceptions import TelegramUnauthorizedError, TelegramNetworkError
 
 import httpx
 from dotenv import load_dotenv
@@ -287,7 +286,7 @@ def replace_emojis_in_text(text: str) -> str:
     return text
 
 # ==================== SOZLAMALAR ====================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8746996595:AAEIbidc49taYa-CVHhWLkYWU_gv77xESpQ")
 FIREBASE_DB_URL = os.getenv("FIREBASE_DB_URL", "https://club-3d454-default-rtdb.firebaseio.com").rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
@@ -475,40 +474,24 @@ async def fb_get(path: str):
         return None
 
 async def fb_set(path: str, data):
-    try:
-        r = await http_client.put(_fb_url(path), json=data)
-        r.raise_for_status()
-        return r.json()
-    except Exception:
-        logging.exception("Firebase'ga yozishda xatolik: %s", path)
-        return None
+    r = await http_client.put(_fb_url(path), json=data)
+    r.raise_for_status()
+    return r.json()
 
 async def fb_update(path: str, data: dict):
-    try:
-        r = await http_client.patch(_fb_url(path), json=data)
-        r.raise_for_status()
-        return r.json()
-    except Exception:
-        logging.exception("Firebase'ni yangilashda xatolik: %s", path)
-        return None
+    r = await http_client.patch(_fb_url(path), json=data)
+    r.raise_for_status()
+    return r.json()
 
 async def fb_push(path: str, data):
-    try:
-        r = await http_client.post(_fb_url(path), json=data)
-        r.raise_for_status()
-        return r.json()
-    except Exception:
-        logging.exception("Firebase'ga qo'shishda xatolik: %s", path)
-        return None
+    r = await http_client.post(_fb_url(path), json=data)
+    r.raise_for_status()
+    return r.json()
 
 async def fb_delete(path: str):
-    try:
-        r = await http_client.delete(_fb_url(path))
-        r.raise_for_status()
-        return True
-    except Exception:
-        logging.exception("Firebase'dan o'chirishda xatolik: %s", path)
-        return False
+    r = await http_client.delete(_fb_url(path))
+    r.raise_for_status()
+    return True
 
 def slugify(text: str) -> str:
     text = text.strip().lower().replace("'", "").replace("’", "")
@@ -702,7 +685,7 @@ def cabin_types(prefix):
     )
     return builder.as_markup()
 
-def select_room(cabin_type, rooms, panorama_url=None):
+def select_room(cabin_type, rooms):
     builder = InlineKeyboardBuilder()
     row_buttons = []
     for room in rooms:
@@ -718,13 +701,6 @@ def select_room(cabin_type, rooms, panorama_url=None):
             builder.row(row_buttons[i], row_buttons[i + 1])
         else:
             builder.row(row_buttons[i])
-    if panorama_url:
-        builder.row(
-            InlineKeyboardButton(
-                text="🌐 360° Panorama ko'rish",
-                callback_data=f"panorama_{cabin_type}"
-            )
-        )
     builder.row(
         InlineKeyboardButton(
             text="️ Orqaga",
@@ -873,9 +849,6 @@ def admin_cabin_detail_keyboard(cabin_key):
             callback_data=f"admcabfield::{cabin_key}::image",
             icon_custom_emoji_id=EMOJI_IDS.get("🖼")
         )
-    )
-    builder.row(
-        InlineKeyboardButton(text="🌐 Panorama (link)", callback_data=f"admcabfield::{cabin_key}::panorama")
     )
     builder.row(
         InlineKeyboardButton(
@@ -1181,43 +1154,22 @@ async def cabin_detail(callback: CallbackQuery):
 
     rooms = cabin.get("rooms", [])
     image = cabin.get("image", "")
-    panorama_url = cabin.get("panorama", "")
     cache_key = f"cabin_{cabin_key}"
     if image and image.startswith("http"):
         try:
             await callback.message.delete()
             photo_source = FILE_ID_CACHE.get(cache_key, image)
             sent = await callback.message.answer_photo(
-                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms, panorama_url)
+                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms)
             )
             if cache_key not in FILE_ID_CACHE and sent.photo:
                 FILE_ID_CACHE[cache_key] = sent.photo[-1].file_id
         except Exception:
             logging.exception("Kabina rasmini yuborishda xatolik: %s", image)
             FILE_ID_CACHE.pop(cache_key, None)
-            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms, panorama_url))
+            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms))
     else:
-        await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms, panorama_url))
-
-@dp.callback_query(F.data.startswith("panorama_"))
-async def show_panorama(callback: CallbackQuery):
-    await callback.answer()
-    cabin_key = callback.data.split("_", 1)[1]
-    cabin = await fb_get(f"cabins/{cabin_key}") or {}
-    panorama_url = cabin.get("panorama", "")
-    if panorama_url and panorama_url.startswith("http"):
-        try:
-            await callback.message.answer_photo(
-                photo=panorama_url,
-                caption=replace_emojis_in_text(
-                    f"🌐 <b>{cabin.get('name', cabin_key)} — 360° Panorama</b>"
-                )
-            )
-        except Exception:
-            logging.exception("Panorama rasmini yuborishda xatolik: %s", panorama_url)
-            await callback.message.answer("⚠️ Panorama rasmini yuklab bo'lmadi.")
-    else:
-        await callback.message.answer("⚠️ Bu kabina uchun panorama rasm hali qo'shilmagan.")
+        await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms))
 
 # ---------- BO'SH JOYLAR ----------
 @dp.callback_query(F.data == "empty_places")
@@ -1601,7 +1553,7 @@ async def admin_cabin_field(callback: CallbackQuery, state: FSMContext):
     _, cabin_key, field = callback.data.split("::")
     await state.update_data(cabin_key=cabin_key, field=field)
     await state.set_state(AdminCabinEditStates.waiting_value)
-    field_names = {"price": "narx", "capacity": "sig'im", "equipment": "jihozlar", "image": "rasm linki", "panorama": "panorama (360°) rasm linki"}
+    field_names = {"price": "narx", "capacity": "sig'im", "equipment": "jihozlar", "image": "rasm linki"}
     await callback.message.answer(f"✏️ Yangi {field_names.get(field, field)} qiymatini yuboring:")
 
 @dp.message(StateFilter(AdminCabinEditStates.waiting_value))
@@ -1839,37 +1791,11 @@ async def error_handler(event):
 
 # ==================== ISHGA TUSHIRISH ====================
 async def main():
+    await seed_database()
+    await bot.delete_webhook(drop_pending_updates=True)
+    print("✅ Bot ishga tushdi!")
     try:
-        await seed_database()
-    except Exception:
-        logging.exception("Bazani boshlang'ich to'ldirishda xatolik (davom etamiz)")
-
-    retry_delay = 5
-    try:
-        while True:
-            try:
-                await bot.delete_webhook(drop_pending_updates=True)
-                print("✅ Bot ishga tushdi!")
-                await dp.start_polling(bot)
-                break  # start_polling normal tugadi (masalan, to'xtatildi)
-            except TelegramUnauthorizedError:
-                # BOT_TOKEN noto'g'ri yoki bekor qilingan — qayta urinish foyda bermaydi,
-                # shuning uchun jarayonni yiqitmasdan aniq xabar bilan kutamiz.
-                logging.error(
-                    "❌ BOT_TOKEN noto'g'ri yoki bekor qilingan (Unauthorized). "
-                    "@BotFather'dan yangi token oling va BOT_TOKEN env o'zgaruvchisini yangilang. "
-                    "60 soniyadan so'ng qayta tekshiriladi..."
-                )
-                await asyncio.sleep(60)
-            except TelegramNetworkError:
-                logging.exception("Telegram bilan tarmoq aloqasida xatolik, qayta urinamiz")
-                await asyncio.sleep(retry_delay)
-            except Exception:
-                logging.exception(
-                    "Bot ishlashi davomida kutilmagan xatolik, %s soniyadan so'ng qayta urinamiz",
-                    retry_delay,
-                )
-                await asyncio.sleep(retry_delay)
+        await dp.start_polling(bot)
     finally:
         await http_client.aclose()
         if ai_client is not None:
@@ -1879,7 +1805,4 @@ async def main():
                 pass
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logging.info("Bot to'xtatildi (KeyboardInterrupt)")
+    asyncio.run(main())
