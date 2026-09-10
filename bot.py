@@ -304,6 +304,9 @@ ADMIN_IDS = {5297746319}
 # "Admin bilan Aloqa" bo'limidagi xabarlar shu ID'ga yuboriladi (admin shu yerdan Reply qilib javob beradi)
 ADMIN_CONTACT_ID = 6147283506
 MENU_ORDERS_CHAT_ID = -5171281890
+
+# ⚠️ DIQQAT: https://t.me/+D3BdS7U0i9E2MWZi kanali uchun ID ni shu yerga yozishingiz shart.
+# ID raqami -100 bilan boshlanishi kerak (Masalan: -1001234567890). Bot shu kanalga admin qilingan bo'lishi lozim!
 CABIN_BOOKING_CHAT_ID = -1004401105554
 
 # ℹ️ Rasmlar endi auto_images.json fayldan emas, FAQAT Firebase'dan olinadi.
@@ -717,6 +720,29 @@ def select_room(cabin_type, rooms):
             builder.row(row_buttons[i], row_buttons[i + 1])
         else:
             builder.row(row_buttons[i])
+    builder.row(
+        InlineKeyboardButton(
+            text="️ Orqaga",
+            callback_data="back_rooms",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")
+        ),
+        InlineKeyboardButton(
+            text=" Bosh Menyu",
+            callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")
+        )
+    )
+    return builder.as_markup()
+
+def cabin_detail_action_keyboard(cabin_key):
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="📅 Bron qilish",
+            callback_data=f"action_book_{cabin_key}",
+            icon_custom_emoji_id=EMOJI_IDS.get("📅")
+        )
+    )
     builder.row(
         InlineKeyboardButton(
             text="️ Orqaga",
@@ -1168,7 +1194,6 @@ async def cabin_detail(callback: CallbackQuery):
     text += f"🎮 Jihozlar: {cabin.get('equipment', '-')}\n"
     text += f"📊 Jami: {cabin.get('total', '-')}\n"
 
-    rooms = cabin.get("rooms", [])
     image = cabin.get("image", "")
     cache_key = f"cabin_{cabin_key}"
     if image and image.startswith("http"):
@@ -1176,16 +1201,26 @@ async def cabin_detail(callback: CallbackQuery):
             await callback.message.delete()
             photo_source = FILE_ID_CACHE.get(cache_key, image)
             sent = await callback.message.answer_photo(
-                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms)
+                photo=photo_source, caption=replace_emojis_in_text(text), reply_markup=cabin_detail_action_keyboard(cabin_key)
             )
             if cache_key not in FILE_ID_CACHE and sent.photo:
                 FILE_ID_CACHE[cache_key] = sent.photo[-1].file_id
         except Exception:
             logging.exception("Kabina rasmini yuborishda xatolik: %s", image)
             FILE_ID_CACHE.pop(cache_key, None)
-            await callback.message.answer(replace_emojis_in_text(text), reply_markup=select_room(cabin_key, rooms))
+            await callback.message.answer(replace_emojis_in_text(text), reply_markup=cabin_detail_action_keyboard(cabin_key))
     else:
-        await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, rooms))
+        await safe_edit(callback, text=text, reply_markup=cabin_detail_action_keyboard(cabin_key))
+
+@dp.callback_query(F.data.startswith("action_book_"))
+async def action_book_from_detail(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    cabin_key = callback.data.split("_", 2)[2]
+    await state.update_data(cabin_type=cabin_key)
+    await state.set_state(BookingStates.choosing_room)
+    cabin = await fb_get(f"cabins/{cabin_key}") or {}
+    text = f"📅 <b>{cabin.get('name', cabin_key)} — Xona Tanlang</b>\n\nQaysi xonani bronlamoqchisiz?"
+    await safe_edit(callback, text=text, reply_markup=select_room(cabin_key, cabin.get("rooms", [])))
 
 # ---------- BO'SH JOYLAR ----------
 @dp.callback_query(F.data == "empty_places")
@@ -1541,7 +1576,7 @@ async def admin_main(callback: CallbackQuery):
 # ---- Kabinalarni tahrirlash ----
 @dp.callback_query(F.data == "adm_cabins")
 async def admin_cabins(callback: CallbackQuery):
-    if not is_admin(callback.from_user.id):
+    if not is_admin(callback.fromuser.id):
         await callback.answer("⛔ Ruxsat yo'q", show_alert=True)
         return
     await callback.answer()
