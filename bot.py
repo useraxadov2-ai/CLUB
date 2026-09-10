@@ -292,7 +292,7 @@ def replace_emojis_in_text(text: str) -> str:
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
 FIREBASE_DB_URL = os.getenv(
     "FIREBASE_DB_URL",
-    "https://injoygame-cba8a-default-rtdb.firebaseio.com/"
+    "https://injoyafana-default-rtdb.firebaseio.com/"
 ).rstrip("/")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
 FIREBASE_AUTH = os.getenv("FIREBASE_AUTH", "AQ.Ab8RN6JOYd6DcNYIYECcvWG7azASP4pmOMEoeuG9ttR-T0KC4A")
@@ -582,7 +582,7 @@ async def seed_database():
                 "price": "70 000 so'm / soat",
                 "equipment": "PS5 konsol, 4K TV",
                 "total": "4 ta Mini Kabina",
-                "rooms": [1, 2, 3, 4],
+                "rooms": [0, 1, 2, 3, 4],
                 "image": ""
             },
             "standard": {
@@ -609,7 +609,8 @@ async def seed_database():
 
     if await fb_get("room_status") is None:
         room_status_seed = {
-            "mini": {"1": "band", "2": "band", "3": "bo'sh", "4": "bo'sh"},
+            "mini": {"0": "band", "1": "bo'sh", "2": "bo'sh",
+                     "3": "kutilmoqda", "4": "bo'sh"},
             "standard": {"5": "bo'sh", "6": "bo'sh", "7": "bo'sh"},
             "vip": {"8": "bo'sh", "9": "bo'sh"},
         }
@@ -674,7 +675,6 @@ async def search_menu_item(query: str):
 
 
 # ==================== GEMINI AI ====================
-# ⚠️ google-genai kutubxonasi o'rnatilgan bo'lishi shart: pip install google-genai
 try:
     from google import genai
     from google.genai import types
@@ -1231,13 +1231,70 @@ async def show_empty_places(callback: CallbackQuery):
     if isinstance(statuses, list):
         statuses = {str(i + 1): v for i, v in enumerate(statuses)}
 
-    text = f"🪑 <b>{cabin.get('name', cabin_key)} — Bo'sh holat</b>\n\n"
-    for room, status in sorted(statuses.items()):
-        emoji = "🟢" if status == "bo'sh" else "🔴"
-        text += f"{emoji} Kabina #{room} — <b>{status}</b>\n"
-    text += "\n🟢 Bo'sh | 🔴 Band"
+    if not statuses:
+        await safe_edit(
+            callback,
+            text=f"🪑 <b>{cabin.get('name', cabin_key)}</b>\n\n"
+                 "⚠️ Hozircha xonalar ma'lumotlari yo'q.",
+            reply_markup=cabin_types("empty"))
+        return
 
-    await safe_edit(callback, text=text, reply_markup=cabin_types("empty"))
+    builder = InlineKeyboardBuilder()
+    text = f"🪑 <b>{cabin.get('name', cabin_key)} — Bo'sh holat</b>\n\n"
+
+    def sort_key(item):
+        try:
+            return (0, int(item[0]))
+        except ValueError:
+            return (1, item[0])
+
+    for room, status in sorted(statuses.items(), key=sort_key):
+        if status == "bo'sh":
+            emoji = "🟢"
+        elif status == "band":
+            emoji = "🔴"
+        elif status == "kutilmoqda":
+            emoji = "🟡"
+        else:
+            emoji = "⚪️"
+
+        text += f"{emoji} Xona #{room} — <b>{status}</b>\n"
+
+        # Faqat "bo'sh" xonalar uchun bron qilish tugmasi
+        if status == "bo'sh":
+            builder.row(InlineKeyboardButton(
+                text=f"📅 Xona #{room} ni bron qilish",
+                callback_data=f"emptybook::{cabin_key}::{room}",
+                icon_custom_emoji_id=EMOJI_IDS.get("📅")))
+
+    text += "\n🟢 Bo'sh | 🔴 Band | 🟡 Kutilmoqda"
+
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Orqaga", callback_data="empty_places",
+            icon_custom_emoji_id=EMOJI_IDS.get("⬅️")),
+        InlineKeyboardButton(
+            text="🏘 Bosh Menyu", callback_data="main_menu",
+            icon_custom_emoji_id=EMOJI_IDS.get("🏘")))
+
+    await safe_edit(callback, text=text, reply_markup=builder.as_markup())
+
+
+@dp.callback_query(F.data.startswith("emptybook::"))
+async def empty_place_book(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    _, cabin_key, room_number = callback.data.split("::")
+    await state.update_data(cabin=cabin_key, room=room_number)
+    await state.set_state(BookingStates.entering_time)
+    cabin = await fb_get(f"cabins/{cabin_key}") or {}
+    await safe_edit(
+        callback,
+        text=f"⏰ <b>Vaqtni kiriting</b>\n\n"
+             f"🏠 Kabina: {cabin.get('name', cabin_key)}\n"
+             f"🚪 Xona: Q #{room_number}\n\n"
+             "Faqat bugungi kun uchun.\nMasalan: 14:00 yoki 18:30\n\n"
+             "⌨️ Vaqtni yozib yuboring:",
+        reply_markup=back_to_menu())
 
 
 # ---------- BRON QILISH ----------
