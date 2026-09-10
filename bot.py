@@ -577,28 +577,31 @@ async def seed_database():
     if await fb_get("cabins") is None:
         cabins_seed = {
             "mini": {
-                "name": "Mini Kabina", "emoji": "🟢",
+                "name": "Mini Kabina",
                 "capacity": "5 kishigacha",
                 "price": "70 000 so'm / soat",
                 "equipment": "PS5 konsol, 4K TV",
                 "total": "4 ta Mini Kabina",
-                "rooms": [1, 2, 3, 4], "image": ""
+                "rooms": [1, 2, 3, 4],
+                "image": ""
             },
             "standard": {
-                "name": "Standard Kabina", "emoji": "🔵",
+                "name": "Standard Kabina",
                 "capacity": "8 kishigacha",
                 "price": "100 000 so'm / soat",
                 "equipment": "PS5 konsol, 4K TV, ovoz tizimi",
                 "total": "3 ta Standard Kabina",
-                "rooms": [5, 6, 7], "image": ""
+                "rooms": [5, 6, 7],
+                "image": ""
             },
             "vip": {
-                "name": "VIP Kabina", "emoji": "🟣",
+                "name": "VIP Kabina",
                 "capacity": "15 kishigacha",
                 "price": "160 000 so'm / soat",
                 "equipment": "PS5 konsol, 4K TV, ovoz tizimi, mini-bar",
                 "total": "2 ta VIP Kabina",
-                "rooms": [8, 9], "image": ""
+                "rooms": [8, 9],
+                "image": ""
             },
         }
         await fb_set("cabins", cabins_seed)
@@ -648,7 +651,7 @@ async def build_room_summary() -> str:
         free = [r for r, s in statuses.items() if s == "bo'sh"]
         busy = [r for r, s in statuses.items() if s == "band"]
         lines.append(
-            f"{cab.get('emoji', '')} {cab.get('name', key)}: "
+            f"{cab.get('name', key)}: "
             f"bo'sh — {', '.join(sorted(free)) or 'yo\'q'}; "
             f"band — {', '.join(sorted(busy)) or 'yo\'q'}"
         )
@@ -1158,7 +1161,7 @@ async def rooms_prices(callback: CallbackQuery):
         data = cabins.get(key)
         if not data:
             continue
-        text += f"{data.get('emoji', '')} <b>{data.get('name', key)}</b>\n"
+        text += f"<b>{data.get('name', key)}</b>\n"
         text += f"├ 👥 Sig'im: {data.get('capacity', '-')}\n"
         text += f"└ 💰 Narx: {data.get('price', '-')}\n\n"
     text += "\n📌 <b>Batafsil ma'lumot uchun kabinani tanlang</b> 👇"
