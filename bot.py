@@ -289,7 +289,7 @@ def replace_emojis_in_text(text: str) -> str:
 
 
 # ==================== SOZLAMALAR ====================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8746996595:AAEIbidc49taYa-CVHhWLkYWU_gv77xESpQ")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8647041435:AAEydQiH6qy9ytQ9-2O7s38ahcc-ykw7Sbo")
 FIREBASE_DB_URL = os.getenv(
     "FIREBASE_DB_URL",
     "https://injoygame-cba8a-default-rtdb.firebaseio.com/"
