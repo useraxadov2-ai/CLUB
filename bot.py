@@ -516,6 +516,12 @@ class AdminTextStates(StatesGroup):
     waiting_text = State()
 
 
+class AdminVideoStates(StatesGroup):
+    choosing_cabin = State()
+    choosing_room = State()
+    waiting_video = State()
+
+
 class ContactAdminStates(StatesGroup):
     chatting = State()
 
@@ -672,6 +678,16 @@ async def search_menu_item(query: str):
             if query_norm in name.lower():
                 return category_key, item_id, item
     return None, None, None
+
+
+async def get_room_video(cabin_key: str, room: str):
+    """Berilgan kabina va xona uchun video file_id va turini qaytaradi.
+    Qaytaradi: (file_id | None, type | None)
+    """
+    data = await fb_get(f"cabins/{cabin_key}/room_videos/{room}")
+    if data and data.get("file_id"):
+        return data["file_id"], data.get("type", "video")
+    return None, None
 
 
 # ==================== GEMINI AI ====================
@@ -865,6 +881,9 @@ def admin_main_menu():
         text="🚪 Xonalar holatini boshqarish", callback_data="adm_rooms",
         icon_custom_emoji_id=EMOJI_IDS.get("🚪")))
     builder.row(InlineKeyboardButton(
+        text="🎬 Xonalar uchun video yuklash", callback_data="adm_videos",
+        icon_custom_emoji_id=EMOJI_IDS.get("📹")))
+    builder.row(InlineKeyboardButton(
         text="🍴 Menyuni boshqarish", callback_data="adm_menu",
         icon_custom_emoji_id=EMOJI_IDS.get("🍴")))
     builder.row(InlineKeyboardButton(
@@ -934,6 +953,8 @@ class RegistrationMiddleware(BaseMiddleware):
         if isinstance(event, Message):
             user = event.from_user
             if event.text and event.text.startswith("/start"):
+                return await handler(event, data)
+            if event.text and event.text.startswith("/upl"):
                 return await handler(event, data)
             if event.contact:
                 return await handler(event, data)
@@ -1013,6 +1034,66 @@ async def notify_admins_of_group_failure(order_type: str, order_text: str):
         logging.exception("Admin(lar)ga guruh xatosi haqida xabar berib bo'lmadi")
 
 
+async def send_time_input_screen(target, cabin_key: str, room: str = None):
+    """Vaqt kiritish ekranini yuboradi.
+    Agar xona uchun video mavjud bo'lsa — videoni caption bilan yuboradi,
+    aks holda oddiy matn yuboradi.
+    """
+    cabin = await fb_get(f"cabins/{cabin_key}") or {}
+    cabin_name = cabin.get("name", cabin_key)
+
+    if room:
+        text = (
+            f"⏰ <b>Vaqtni kiriting</b>\n\n"
+            f"🏠 Kabina: {cabin_name}\n"
+            f"🚪 Xona: Q #{room}\n\n"
+            "Faqat bugungi kun uchun.\n"
+            "Masalan: 14:00 yoki 18:30\n\n"
+            "⌨️ Vaqtni yozib yuboring:"
+        )
+    else:
+        text = (
+            f"⏰ <b>Vaqtni kiriting</b>\n\n"
+            f"🏠 Kabina: {cabin_name}\n\n"
+            "Qaysi vaqtga bron qilmoqchisiz?\n"
+            "(Faqat bugungi kun uchun. Masalan: 14:00)\n\n"
+            "⌨️ Vaqtni yozib yuboring:"
+        )
+
+    caption = replace_emojis_in_text(text)
+    video_file_id = None
+    video_type = None
+    if room:
+        video_file_id, video_type = await get_room_video(cabin_key, str(room))
+
+    # Eski xabarni o'chirib, yangisini yuboramiz
+    if isinstance(target, CallbackQuery):
+        try:
+            await target.message.delete()
+        except Exception:
+            pass
+        chat = target.message.chat
+    else:
+        chat = target.chat
+
+    if video_file_id and video_type == "video":
+        try:
+            await bot.send_video(chat.id, video=video_file_id, caption=caption,
+                                 reply_markup=back_to_menu())
+            return
+        except Exception:
+            logging.exception("Video yuborishda xatolik, oddiy matn yuboriladi")
+    elif video_file_id and video_type == "video_note":
+        try:
+            await bot.send_video_note(chat.id, video_note=video_file_id)
+            await bot.send_message(chat.id, caption, reply_markup=back_to_menu())
+            return
+        except Exception:
+            logging.exception("Video note yuborishda xatolik")
+
+    await bot.send_message(chat.id, caption, reply_markup=back_to_menu())
+
+
 # ==================== RO'YXATDAN O'TISH ====================
 @dp.message(Command("start"))
 async def start(message: Message):
@@ -1052,7 +1133,10 @@ async def handle_contact(message: Message):
 @dp.callback_query(F.data == "main_menu")
 async def back_to_main(callback: CallbackQuery):
     await callback.answer()
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
     await callback.message.answer(
         replace_emojis_in_text("🎮 <b>InJoy Gaming Club</b>\n\nKerakli bo'limni tanlang 👇"),
         reply_markup=main_menu())
@@ -1286,15 +1370,7 @@ async def empty_place_book(callback: CallbackQuery, state: FSMContext):
     _, cabin_key, room_number = callback.data.split("::")
     await state.update_data(cabin=cabin_key, room=room_number)
     await state.set_state(BookingStates.entering_time)
-    cabin = await fb_get(f"cabins/{cabin_key}") or {}
-    await safe_edit(
-        callback,
-        text=f"⏰ <b>Vaqtni kiriting</b>\n\n"
-             f"🏠 Kabina: {cabin.get('name', cabin_key)}\n"
-             f"🚪 Xona: Q #{room_number}\n\n"
-             "Faqat bugungi kun uchun.\nMasalan: 14:00 yoki 18:30\n\n"
-             "⌨️ Vaqtni yozib yuboring:",
-        reply_markup=back_to_menu())
+    await send_time_input_screen(callback, cabin_key, room_number)
 
 
 # ---------- BRON QILISH ----------
@@ -1324,13 +1400,7 @@ async def select_time(callback: CallbackQuery, state: FSMContext):
     _, cabin_key, room_number = callback.data.split("_")
     await state.update_data(cabin=cabin_key, room=room_number)
     await state.set_state(BookingStates.entering_time)
-    cabin = await fb_get(f"cabins/{cabin_key}") or {}
-    await safe_edit(
-        callback,
-        text=f"⏰ <b>Vaqtni kiriting</b>\n\n🏠 Kabina: {cabin.get('name', cabin_key)}\n"
-             f"🚪 Xona: Q #{room_number}\n\n"
-             "Faqat bugungi kun uchun.\nMasalan: 14:00 yoki 18:30\n\n⌨️ Vaqtni yozib yuboring:",
-        reply_markup=back_to_menu())
+    await send_time_input_screen(callback, cabin_key, room_number)
 
 
 @dp.message(StateFilter(BookingStates.entering_time))
@@ -1379,16 +1449,11 @@ async def quick_booking(callback: CallbackQuery, state: FSMContext):
 @dp.callback_query(F.data.startswith("quick_"), StateFilter(QuickBookingStates.choosing_cabin))
 async def quick_booking_time(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    cabin_key = callback.data.split("_")[1]
+    cabin_key = callback.data.split("_", 1)[1]
     await state.update_data(cabin=cabin_key)
     await state.set_state(QuickBookingStates.entering_time)
-    cabin = await fb_get(f"cabins/{cabin_key}") or {}
-    await safe_edit(
-        callback,
-        text=f"⚡ <b>Tez-kor Bron: {cabin.get('name', cabin_key)}</b>\n\n"
-             "Qaysi vaqtga bron qilmoqchisiz?\n(Faqat bugungi kun uchun. Masalan: 14:00)\n\n"
-             "⌨️ Vaqtni yozib yuboring:",
-        reply_markup=back_to_menu())
+    # Tezkor bronda xona tanlanmaydi — videosiz oddiy matn yuboriladi
+    await send_time_input_screen(callback, cabin_key, room=None)
 
 
 @dp.message(StateFilter(QuickBookingStates.entering_time))
@@ -1741,6 +1806,99 @@ async def admin_toggle_room(callback: CallbackQuery):
     new_status = "band" if current == "bo'sh" else "bo'sh"
     await fb_set(f"room_status/{cabin_key}/{room}", new_status)
     await _render_admin_rooms(callback, cabin_key)
+
+
+# ---- XONALAR UCHUN VIDEO YUKLASH ----
+@dp.message(Command("upl"))
+async def admin_upload_video_start(message: Message, state: FSMContext):
+    if not is_admin(message.from_user.id):
+        await message.answer("⛔ Sizda admin huquqi yo'q.")
+        return
+    await state.set_state(AdminVideoStates.choosing_cabin)
+    await message.answer(
+        "🎬 <b>Video yuklash</b>\n\nQaysi kabina uchun video yuklaysiz?",
+        reply_markup=cabin_types("uplcab"))
+
+
+@dp.callback_query(F.data == "adm_videos")
+async def admin_videos_menu(callback: CallbackQuery, state: FSMContext):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("⛔ Ruxsat yo'q", show_alert=True)
+        return
+    await callback.answer()
+    await state.set_state(AdminVideoStates.choosing_cabin)
+    await safe_edit(callback,
+                    text="🎬 <b>Video yuklash</b>\n\nQaysi kabina uchun video yuklaysiz?",
+                    reply_markup=cabin_types("uplcab"))
+
+
+@dp.callback_query(F.data.startswith("uplcab_"), StateFilter(AdminVideoStates.choosing_cabin))
+async def admin_upload_choose_room(callback: CallbackQuery, state: FSMContext):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("⛔ Ruxsat yo'q", show_alert=True)
+        return
+    await callback.answer()
+    cabin_key = callback.data.split("_", 1)[1]
+    await state.update_data(cabin_key=cabin_key)
+    await state.set_state(AdminVideoStates.choosing_room)
+
+    cabin = await fb_get(f"cabins/{cabin_key}") or {}
+    rooms = cabin.get("rooms", [])
+
+    builder = InlineKeyboardBuilder()
+    for room in rooms:
+        builder.row(InlineKeyboardButton(
+            text=f"🚪 Xona #{room}",
+            callback_data=f"uplroom::{cabin_key}::{room}",
+            icon_custom_emoji_id=EMOJI_IDS.get("🚪")))
+    builder.row(InlineKeyboardButton(text="⬅️ Bekor qilish", callback_data="adm_main"))
+    await safe_edit(callback,
+                    text=f"🎬 <b>{cabin.get('name', cabin_key)}</b>\n\nQaysi xona uchun video?",
+                    reply_markup=builder.as_markup())
+
+
+@dp.callback_query(F.data.startswith("uplroom::"), StateFilter(AdminVideoStates.choosing_room))
+async def admin_upload_wait_video(callback: CallbackQuery, state: FSMContext):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("⛔ Ruxsat yo'q", show_alert=True)
+        return
+    await callback.answer()
+    _, cabin_key, room = callback.data.split("::")
+    await state.update_data(cabin_key=cabin_key, room=room)
+    await state.set_state(AdminVideoStates.waiting_video)
+    await callback.message.answer(
+        f"🎬 <b>Xona #{room}</b> uchun videoni yuboring.\n\n"
+        "Video fayl yoki video note ko'rinishida yuboring:")
+
+
+@dp.message(StateFilter(AdminVideoStates.waiting_video), F.video | F.video_note)
+async def admin_upload_save_video(message: Message, state: FSMContext):
+    if not is_admin(message.from_user.id):
+        return
+    data = await state.get_data()
+    cabin_key = data["cabin_key"]
+    room = data["room"]
+
+    if message.video:
+        file_id = message.video.file_id
+        video_type = "video"
+    else:
+        file_id = message.video_note.file_id
+        video_type = "video_note"
+
+    await fb_update(f"cabins/{cabin_key}/room_videos", {
+        str(room): {"file_id": file_id, "type": video_type}
+    })
+    await message.answer(f"✅ Xona #{room} uchun video saqlandi!",
+                         reply_markup=admin_main_menu())
+    await state.clear()
+
+
+@dp.message(StateFilter(AdminVideoStates.waiting_video))
+async def admin_upload_wrong_type(message: Message, state: FSMContext):
+    if not is_admin(message.from_user.id):
+        return
+    await message.answer("⚠️ Iltimos, video fayl yuboring (yoki video note).")
 
 
 # ---- Menyuni boshqarish ----
